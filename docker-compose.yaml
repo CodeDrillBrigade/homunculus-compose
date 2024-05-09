@@ -1,0 +1,17 @@
+services:
+    mongodb:
+        image: mongo:6.0
+        restart: always
+        command: [--auth, --replSet, repl0, --bind_ip_all, "--keyFile", "/data/key.key"]
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ADMIN_USR}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ADMIN_PWD}
+            MONGO_INITDB_DATABASE: homunculus-${HOMUNCULUS_DB_NAME}
+            HOMUNCULUS_ADMIN_PASSWORD_HASH: ${HOMUNCULUS_ADMIN_PASSWORD_HASH}
+            MONGODB_IP: ${MONGODB_IP}
+            MONGODB_PORT: ${MONGODB_PORT}
+        ports:
+            - ${MONGODB_PORT}:27017
+        volumes:
+            - ./mongoinit:/docker-entrypoint-initdb.d
+            - ./seed/data/key.key:/data/key.key
