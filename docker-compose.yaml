@@ -8,10 +8,40 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ADMIN_PWD}
             MONGO_INITDB_DATABASE: homunculus-${HOMUNCULUS_DB_NAME}
             HOMUNCULUS_ADMIN_PASSWORD_HASH: ${HOMUNCULUS_ADMIN_PASSWORD_HASH}
-            MONGODB_IP: ${MONGODB_IP}
-            MONGODB_PORT: ${MONGODB_PORT}
         ports:
-            - ${MONGODB_PORT}:27017
+            - 27017:27017
+        networks:
+            - mongo-network
         volumes:
             - ./mongoinit:/docker-entrypoint-initdb.d
             - ./seed/data/key.key:/data/key.key
+
+    mailserver:
+        image: ghcr.io/docker-mailserver/docker-mailserver:latest
+        container_name: mailserver
+        hostname: mail.kaironbot.net
+        environment:
+            - SSL_TYPE=letsencrypt
+        env_file: mailserver.env
+        ports:
+            - "25:25"
+            - "143:143"
+            - "465:465"
+            - "587:587"
+            - "993:993"
+        volumes:
+            - ./docker-data/dms/mail-data/:/var/mail/
+            - ./docker-data/dms/mail-state/:/var/mail-state/
+            - ./docker-data/dms/mail-logs/:/var/log/mail/
+            - ./docker-data/dms/config/:/tmp/docker-mailserver/
+            - ./docker-data/certbot/certs/:/etc/letsencrypt
+            - /etc/localtime:/etc/localtime:ro
+        restart: always
+        stop_grace_period: 1m
+        healthcheck:
+            test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+            timeout: 3s
+            retries: 0
+networks:
+    mongo-network:
+        driver: bridge
