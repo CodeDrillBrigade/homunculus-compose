@@ -100,15 +100,13 @@ fi
 reset_content=$(<"./templates/forgot_mail.json")
 reset_content=$(echo "$reset_content" | sed "s/<GENERATED_RESET_MAIL_ID>/$reset_pwd_id/")
 reset_content=$(echo "$reset_content" | sed "s/<MAIL_CREDENTIALS>/$mail_credentials/")
-echo "$reset_content" > "./templates/forgot_mail.json"
-cp ./templates/forgot_mail.json ./hermes/config/mails/forgot_mail.json
+echo "$reset_content" > "./hermes/config/mails/forgot_mail.json"
 
 # Updates and moves the invite mail configuration
 invite_content=$(<"./templates/invite_mail.json")
 invite_content=$(echo "$invite_content" | sed "s/<GENERATED_RESET_MAIL_ID>/$invite_id/")
 invite_content=$(echo "$invite_content" | sed "s/<MAIL_CREDENTIALS>/$mail_credentials/")
-echo "$invite_content" > "./templates/invite_mail.json"
-cp ./templates/invite_mail.json ./hermes/config/mails/invite_mail.json
+echo "$invite_content" > "./hermes/config/mails/invite_mail.json"
 
 # Homunculus Configuration
 # Creates the Homunculus part in the .env file

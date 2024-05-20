@@ -1,1 +1,7 @@
-
+{
+  "id": "<GENERATED_RESET_MAIL_ID>",
+  "sender": "homunculus@kaironbot.net",
+  "subjectTemplate": "Reset your Homunculus password",
+  "username": "homunculus@kaironbot.net",
+  <MAIL_CREDENTIALS>
+}

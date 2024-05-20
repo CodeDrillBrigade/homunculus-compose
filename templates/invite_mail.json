@@ -1,1 +1,7 @@
-
+{
+  "id": "<GENERATED_RESET_MAIL_ID>",
+  "sender": "homunculus@kaironbot.net",
+  "subjectTemplate": "You have been invited to Homunculus!",
+  "username": "homunculus@kaironbot.net",
+  <MAIL_CREDENTIALS>
+}
