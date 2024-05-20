@@ -13,6 +13,24 @@ services:
             - mongo-network
         volumes:
             - ./seed/data/key.key:/data/key.key
+        healthcheck:
+            test: mongosh --username ${MONGODB_ADMIN_USR} --password ${MONGODB_ADMIN_PWD} --authenticationDatabase admin
+            interval: 15s
+            timeout: 5s
+            retries: 5
+
+    mongodb-init:
+        build: ./auxiliary
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        networks:
+            - mongo-network
+        environment:
+            MONGODB_ADMIN_USR: ${MONGODB_ADMIN_USR}
+            MONGODB_ADMIN_PWD: ${MONGODB_ADMIN_PWD}
+            MONGODB_HOST: mongodb
+            HOMUNCULUS_DB: ${HOMUNCULUS_DB}
 
     hermes:
         image: lotuxpunk/hermes:latest
@@ -31,8 +49,14 @@ services:
     homunculus:
         image: testadirapa/homunculus:latest
         restart: always
+        depends_on:
+            mongodb-init:
+                condition: service_completed_successfully
+                restart: true
         networks:
             - mongo-network
+        ports:
+            -   8086:8080
         environment:
             AUTH_SECRET: ${AUTH_SECRET}
             REFRESH_SECRET: ${REFRESH_SECRET}
@@ -47,12 +71,19 @@ services:
             INVITE_TEMPLATE_ID: ${INVITE_TEMPLATE_ID}
 
     homunculus-desk:
-        image: testadirapa/homunculus-desk
+        build: ./homunculus-desk
         restart: always
         networks:
             - mongo-network
         ports:
             - 8083:80
+        healthcheck:
+            test: curl http://localhost
+            interval: 60s
+            retries: 5
+            start_period: 20s
+            timeout: 10s
+
 networks:
     mongo-network:
         driver: bridge

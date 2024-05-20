@@ -6,6 +6,7 @@ mongodb_pwd=""
 db_name=""
 mailer_config=""
 frontend_url=""
+backend_url=""
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -33,12 +34,21 @@ while [ "$#" -gt 0 ]; do
             frontend_url="$2"
             shift 2
             ;;
+        --backend_url)
+            backend_url="$2"
+            shift 2
+            ;;
         *)
             echo "Error: Unsupported flag $1" >&2
             exit 1
             ;;
     esac
 done
+
+# Frontend configuration
+# Creates a .env file for the frontend build
+rm ./homunculus-desk/.env
+echo "REACT_APP_APIURL=$backend_url" >> ./homunculus-desk/.env
 
 # MongoDb Configuration
 # creates a secret key and assigns permission to the docker user (note: requires sudo)
@@ -76,7 +86,7 @@ mail_credentials=""
 smtp_pattern="smtp://*:*@*:*"
 if [[ $mailer_config == $smtp_pattern ]]; then
     # Remove the prefix "smtp://"
-    temp="${$mailer_config#smtp://}"
+    temp="${mailer_config//smtp:\/\//}"
 
     # Extract username and the rest (password@ip:port)
     username="${temp%%:*}"
@@ -90,7 +100,7 @@ if [[ $mailer_config == $smtp_pattern ]]; then
     ip="${rest%%:*}"
     port="${rest#*:}"
 
-    mail_credentials="\"type\": \"SMTP\",\n\"username\": \"$username\",\n\"password\": \"$password\",\n\"smtpHost\": \"$ip\",\n\"smtpPort\": $port"
+    mail_credentials="\"provider\": \"SMTP\",\n\"username\": \"$username\",\n\"password\": \"$password\",\n\"smtpHost\": \"$ip\",\n\"smtpPort\": $port"
 
 else
     mail_credentials="\"provider\": \"RESEND\",\n\"apiKey\": \"$mailer_config\""
@@ -124,14 +134,3 @@ echo "INVITE_TEMPLATE_ID=$invite_id" >> homunculus.env
 
 # Starts docker compose
 docker-compose --env-file ./homunculus.env up -d
-
-# Small wait
-sleep 5
-
-# Initiates the replica set in mongo db
-init_cmd="rs.initiate({\"_id\": \"repl0\", \"version\": 1,\"members\": [{\"_id\": 1,\"host\": \"mongodb:27017\",\"priority\": 1}]})"
-docker exec homunculus-compose-mongodb-1 mongosh --username $mongodb_username --password $mongodb_pwd --authenticationDatabase admin --eval "$init_cmd"
-
-# Creates the user in the Homunculus database
-create_user_cmd="db.createUser({user: \"$mongodb_username\", pwd: \"$mongodb_pwd\",roles: [{role: \"dbOwner\",db: \"$db_name\"}]});"
-docker exec homunculus-compose-mongodb-1 mongosh --username $mongodb_username --password $mongodb_pwd --authenticationDatabase admin --eval "use $db_name" --eval "$create_user_cmd"
