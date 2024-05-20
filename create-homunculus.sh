@@ -57,7 +57,7 @@ if [[ ! -f ./seed/data/key.key ]]; then
   openssl rand -base64 756 > ./seed/data/key.key
   chmod 400 ./seed/data/key.key
   # Sets up the permission for the key. You may not need this
-  # sudo chown lxd:docker ./seed/data/key.key
+  sudo chown lxd:docker ./seed/data/key.key
 fi
 
 # Creates the mongodb part of the .env file
