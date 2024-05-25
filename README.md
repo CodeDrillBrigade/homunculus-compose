@@ -12,7 +12,7 @@ It supports:
 
 ### Roadmap
 
--   [x] First bare, working version (0.0.2)
+-   [x] First bare, working version
 -   [ ] Improving roles and permissions
 -   [ ] Improving search
 -   [ ] Add alerts
@@ -24,7 +24,17 @@ This repository provides all the components needed to run Homunculus out of the 
 - The Homunculus backend
 - The Homunculus frontend
 
-To automatically set up all the variables needed to run the environment the first time you can run:
+First, you will need to build an image for the frontend. To do so, run the following commands:
+```bash
+git clone https://github.com/CodeDrillBrigade/Homunculus-desk.git
+cd Homunculus-desk
+echo "REACT_APP_APIURL=<YOUR_BACKEND_URL>" >> .env
+docker buiild . -t homunculus-desk:latest
+```
+
+:warning: Don't forget to replace `<YOUR_BACKEND_URL>` with the actual URL of your Homunculus backend.
+
+Then, to automatically set up all the variables needed to run the environment the first time you can run:
 
 ```bash
 sudo ./create-homunculus.sh --mongodb_username DB_ADMIN_USERNAME --mongodb_pwd DB_ADMIN_PWD --db_name DB_NAME --mailer_config MAILER_CONFIG_STRING --frontend_url FRONTEND_URL --backend_url BACKEND_URL
@@ -54,7 +64,7 @@ and never provided at client side.
 You need to run this only once. The following time, it is enough to run:
 
 ```bash
-docker-compose --env-file ./homunculus.env up -d
+docker compose --env-file ./homunculus.env up -d
 ```
 
 ## Bootstrap

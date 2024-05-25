@@ -71,7 +71,7 @@ services:
             INVITE_TEMPLATE_ID: ${INVITE_TEMPLATE_ID}
 
     homunculus-desk:
-        build: ./homunculus-desk
+        image: homunculus-desk:latest
         restart: always
         networks:
             - mongo-network
