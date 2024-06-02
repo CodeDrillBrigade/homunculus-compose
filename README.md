@@ -47,7 +47,6 @@ Sudo it's needed to change the ownership of the key file of MongoDb, at line 59:
   # Sets up the permission for the key. You may not need this
   sudo chown lxd:docker ./seed/data/key.key
 ```
-If the script goes in error because the user:group is not valid, comment the line and run it again
 
 ### Explanation of the parameters
 

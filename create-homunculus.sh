@@ -46,9 +46,19 @@ while [ "$#" -gt 0 ]; do
 done
 
 # Frontend configuration
-# Creates a .env file for the frontend build
-rm ./homunculus-desk/.env
-echo "REACT_APP_APIURL=$backend_url" >> ./homunculus-desk/.env
+# Clones and creates the image for homunculus-desk
+if [[ ! -f ./seed/data/key.key ]]; then
+  git clone https://github.com/CodeDrillBrigade/Homunculus-desk.git
+  cd Homunculus-desk
+  echo "REACT_APP_APIURL=$backend_url" >> .env
+  docker build . -t homunculus-desk:latest
+  cd ..
+else
+    cd Homunculus-desk
+    git pull
+    docker build . -t homunculus-desk:latest
+    cd ..
+fi
 
 # MongoDb Configuration
 # creates a secret key and assigns permission to the docker user (note: requires sudo)
@@ -57,7 +67,7 @@ if [[ ! -f ./seed/data/key.key ]]; then
   openssl rand -base64 756 > ./seed/data/key.key
   chmod 400 ./seed/data/key.key
   # Sets up the permission for the key. You may not need this
-  sudo chown lxd:docker ./seed/data/key.key
+  sudo chown lxd:docker ./seed/data/key.key || echo "Cannot change the permissions for the MongoDb key"
 fi
 
 # Creates the mongodb part of the .env file
@@ -133,4 +143,4 @@ echo "# The Hermes template id for the invitation email, automatically generated
 echo "INVITE_TEMPLATE_ID=$invite_id" >> homunculus.env
 
 # Starts docker compose
-docker-compose --env-file ./homunculus.env up -d
+docker compose --env-file ./homunculus.env up -d
