@@ -88,8 +88,12 @@ mkdir -p ./hermes/config/templates
 # Populates and moves the templates
 reset_pwd_id=$(uuidgen)
 invite_id=$(uuidgen)
+report_id=$(uuidgen)
+alert_id=$(uuidgen)
 cp ./templates/forgot_template.hbs "./hermes/config/templates/$reset_pwd_id.hbs"
 cp ./templates/invite_template.hbs "./hermes/config/templates/$invite_id.hbs"
+cp ./templates/report_template.hbs "./hermes/config/templates/$report_id.hbs"
+cp ./templates/alert_template.hbs "./hermes/config/templates/$alert_id.hbs"
 
 # If I have a SMTP configuration, I will update the templates accordingly, otherwise I'll use an api key based config
 mail_credentials=""
@@ -128,6 +132,18 @@ invite_content=$(echo "$invite_content" | sed "s/<GENERATED_RESET_MAIL_ID>/$invi
 invite_content=$(echo "$invite_content" | sed "s/<MAIL_CREDENTIALS>/$mail_credentials/")
 echo "$invite_content" > "./hermes/config/mails/invite_mail.json"
 
+# Updates and moves the report mail configuration
+report_content=$(<"./templates/report_mail.json")
+report_content=$(echo "$report_content" | sed "s/<GENERATED_RESET_MAIL_ID>/$report_id/")
+report_content=$(echo "$report_content" | sed "s/<MAIL_CREDENTIALS>/$mail_credentials/")
+echo "$report_content" > "./hermes/config/mails/report_mail.json"
+
+# Updates and moves the alert mail configuration
+alert_content=$(<"./templates/alert_mail.json")
+alert_content=$(echo "$alert_content" | sed "s/<GENERATED_RESET_MAIL_ID>/$alert_id/")
+alert_content=$(echo "$alert_content" | sed "s/<MAIL_CREDENTIALS>/$mail_credentials/")
+echo "$alert_content" > "./hermes/config/mails/alert_mail.json"
+
 # Homunculus Configuration
 # Creates the Homunculus part in the .env file
 echo "" >> homunculus.env
@@ -141,6 +157,10 @@ echo "# The Hermes template id for the reset password email, automatically gener
 echo "RESET_PASSWORD_TEMPLATE_ID=$reset_pwd_id" >> homunculus.env
 echo "# The Hermes template id for the invitation email, automatically generated" >> homunculus.env
 echo "INVITE_TEMPLATE_ID=$invite_id" >> homunculus.env
+echo "# The Hermes template id for the report email, automatically generated" >> homunculus.env
+echo "REPORT_TEMPLATE_ID=$report_id" >> homunculus.env
+echo "# The Hermes template id for the alert email, automatically generated" >> homunculus.env
+echo "ALERT_TEMPLATE_ID=$alert_id" >> homunculus.env
 
 # Starts docker compose
 docker compose --env-file ./homunculus.env up -d

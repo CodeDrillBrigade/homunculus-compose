@@ -69,6 +69,8 @@ services:
             HERMES_URL: http://hermes:8081
             RESET_PASSWORD_TEMPLATE_ID: ${RESET_PASSWORD_TEMPLATE_ID}
             INVITE_TEMPLATE_ID: ${INVITE_TEMPLATE_ID}
+            REPORT_TEMPLATE_ID: ${REPORT_TEMPLATE_ID}
+            ALERT_TEMPLATE_ID: ${ALERT_TEMPLATE_ID}
 
     homunculus-desk:
         image: homunculus-desk:latest
